@@ -19,7 +19,7 @@ module Griddle
       @owner_type = owner.class.to_s
       @owner_id = owner.id
       @styles = (options.dup.delete(:styles) || {}).inject({}) do |h, value|
-        h[value.first] = Style.new value.first, value.last
+        h[value.first] = Style.new value.first, value.last, self
         h
       end
       @options = options

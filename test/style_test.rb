@@ -32,6 +32,10 @@ class StyleTest < Test::Unit::TestCase
         assert_kind_of Griddle::Style, @attachment.styles[:thumb]
       end
       
+      should "have an #attachment for a style" do
+        assert_equal @attachment, @attachment.styles[:thumb].attachment
+      end
+      
       should "have a geometry for a style" do
         assert_equal @options[:styles][:thumb], @attachment.styles[:thumb][:geometry]
       end

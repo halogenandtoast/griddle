@@ -1,10 +1,11 @@
 module Griddle
   class Style
     
-    attr_accessor :name, :definition
+    attr_accessor :name, :definition, :attachment
     
-    def initialize(name, definition)
+    def initialize(name, definition, attachment)
       @name = name
+      @attachment = attachment
       @definition = case 
       when definition.is_a?(String)
         {
@@ -24,6 +25,10 @@ module Griddle
     def [](key)
       return nil unless respond_to? key
       send(key)
+    end
+    
+    def attachment
+      @attachment
     end
     
     def geometry
