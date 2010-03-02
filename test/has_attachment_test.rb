@@ -30,7 +30,6 @@ class HasAttachmentTest < Test::Unit::TestCase
       end
  
       should "read file from grid store" do
-        puts @document.image.grid_key
         assert_equal "image/jpeg", @file_system.find_one(:filename => @document.image.grid_key)['contentType']
       end
  
