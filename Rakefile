@@ -9,9 +9,9 @@ begin
     gem.description = %Q{TODO: longer description of your gem}
     gem.email = "matt@toastyapps.com"
     gem.homepage = "http://github.com/toastyapps/griddle"
-    gem.authors = ["Matt Matt san Mongeau"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+    gem.authors = ["Matt Mongeau"]
+    gem.add_development_dependency "shoulda", ">= 0"
+    gem.add_dependency "mongo_mapper", ">= 0"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -21,7 +21,7 @@ end
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
+  test.pattern = 'test/**/*_test.rb'
   test.verbose = true
 end
 
@@ -29,7 +29,7 @@ begin
   require 'rcov/rcovtask'
   Rcov::RcovTask.new do |test|
     test.libs << 'test'
-    test.pattern = 'test/**/test_*.rb'
+    test.pattern = 'test/**/*_test.rb'
     test.verbose = true
   end
 rescue LoadError
@@ -39,7 +39,6 @@ rescue LoadError
 end
 
 task :test => :check_dependencies
-
 task :default => :test
 
 require 'rake/rdoctask'
