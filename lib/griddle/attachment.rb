@@ -9,13 +9,20 @@ module Griddle
     key :file_name, String
     key :file_size, Integer
     key :content_type, String
+    key :styles, Hash
+    key :options, Hash
     
     before_destroy :destroy_file
     
-    def initialize(name, owner)
+    def initialize(name, owner, options = {})
       @name = name
       @owner_type = owner.class.to_s
       @owner_id = owner.id
+      @styles = (options.dup.delete(:styles) || {}).inject({}) do |h, value|
+        h[value.first] = Style.new value.first, value.last
+        h
+      end
+      @options = options
     end
     
     def grid_key
