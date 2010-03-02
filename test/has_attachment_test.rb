@@ -34,6 +34,27 @@ class HasAttachmentTest < Test::Unit::TestCase
       end
  
     end
+    
+    context "with styles" do
+      
+      setup do
+        @document = DocWithStyles.new
+      end
+      
+      context "when assigned a file" do
+        
+        setup do
+          @document.image = @image
+          @document.save!
+        end
+        
+        should "have a styles" do
+          assert_kind_of Hash, @document.image.styles
+        end 
+        
+      end
+      
+    end
  
     context "when multiple instances" do
       setup do

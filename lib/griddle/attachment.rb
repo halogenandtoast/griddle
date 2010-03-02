@@ -19,7 +19,7 @@ module Griddle
     end
     
     def grid_key
-      @grid_key ||= "#{owner_type.pluralize}/#{owner_id}/#{name}/#{file_name}"
+      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}"
     end
     
     def assign(uploaded_file)
