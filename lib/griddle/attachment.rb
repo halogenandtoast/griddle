@@ -1,22 +1,69 @@
 module Griddle
   class Attachment
-    include MongoMapper::Document
+    #     belongs_to :owner, :polymorphic => true
     
-    belongs_to :owner, :polymorphic => true
-    key :name, String
-    key :owner_id, ObjectId, :required => true
-    key :owner_type, String, :required => true
-    key :file_name, String
-    key :file_size, Integer
-    key :content_type, String
-    key :styles, Hash
-    key :options, Hash
+    attr_accessor :attributes
+
+    def initialize(attributes = {})
+      @attributes = attributes
+    end
     
-    before_destroy :destroy_file
-    before_save :save_file
+    def method_missing(method, *args, &block)
+      key = method.to_s.gsub(/\=$/, '')
+      if self.class.valid_attributes.include?(key)
+        if key != method.to_s
+          @attributes[key] = args[0]
+        else
+          @attributes[key]
+        end
+      else
+        super
+      end
+    end
+
+    def self.valid_attributes
+      ['name', 'owner_id', 'owner_type', 'file_name', 'file_size', 'content_type', 'styles', 'options']
+    end
+
+    def valid_attributes(attributes)
+      Hash[*attributes.select{|key, value| self.class.valid_attributes.include?(key) }.flatten]
+    end
+
+    def attributes=(attributes)
+      @attributes.merge!(attributes)
+    end
+
+    def save
+      save_file
+      collection.insert(valid_attributes(@attributes))
+    end
+
+    def styles
+      @styles ||= {}
+    end
+
+    def collection
+      @collection ||= self.class.collection
+    end
+
+    def self.collection
+      @collection ||= Griddle.database.collection('griddle.attachments')
+    end
+
+    def self.attachment_for(name, owner_type, owner_id)
+      options = {'name' => name, 'owner_type' => owner_type, 'owner_id' => owner_id}
+      record = collection.find_one(options)
+      return new(record) unless record.nil?
+      return new(options)
+    end
+    
+    def destroy
+      destroy_file
+      collection.remove({'name' => name, 'owner_type' => owner_type, 'owner_id' => owner_id})
+    end
     
     def self.for(name, owner, options = {})
-      a = Attachment.find_or_create_by_name_and_owner_type_and_owner_id(name, owner.class.to_s, owner.id)
+      a = attachment_for(name, owner.class.to_s, owner.id)
       if options.has_key?(:styles)
         a.styles = (options[:styles] || {}).inject({}) do |h, value|
           h[value.first] = Style.new value.first, value.last, a
@@ -41,17 +88,17 @@ module Griddle
       self.file_size = File.size(new_file)
       self.content_type = new_file.content_type
       
-      GridFS::GridStore.open(self.class.database, grid_key, 'w', :content_type => self.content_type) do |f|
+      GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
         f.write new_file.read
       end
     end
     
     def file
-      GridFS::GridStore.new(self.class.database, grid_key, 'r') unless file_name.blank?
+      GridFS::GridStore.new(Griddle.database, grid_key, 'r') unless file_name.blank?
     end
     
     def destroy_file
-      GridFS::GridStore.unlink(self.class.database, grid_key)
+      GridFS::GridStore.unlink(Griddle.database, grid_key)
     end
     
     def exists?

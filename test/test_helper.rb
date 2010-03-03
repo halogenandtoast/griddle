@@ -10,6 +10,8 @@ TEST_DB = 'griddle-test' unless Object.const_defined?("TEST_DB")
  
 MongoMapper.database = TEST_DB
  
+#Griddle.database = Mongo::Connection.new.db(TEST_DB)
+ 
 class Test::Unit::TestCase
   def teardown
     MongoMapper.database.collections.each do |coll|

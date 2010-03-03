@@ -1,3 +1,5 @@
+require 'mongo_mapper'
+
 class Doc
   include MongoMapper::Document
   include Griddle::HasGridAttachment
