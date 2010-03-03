@@ -9,22 +9,23 @@ module Griddle
     key :file_name, String
     key :file_size, Integer
     key :content_type, String
+    key :styles, Hash
     
     before_destroy :destroy_file
+    before_save :save_file
     
-    def initialize(name, owner)
-      @name = name
-      @owner_type = owner.class.to_s
-      @owner_id = owner.id
+    def self.for(name, owner, options = {})
+      styles = options.has_key?(:styles) ? options[:styles] : {}
+      Attachment.find_or_create_by_name_and_owner_type_and_owner_id(name, owner.class.to_s, owner.id)
     end
     
     def grid_key
-      @grid_key ||= "#{owner_type.pluralize}/#{owner_id}/#{name}/#{file_name}"
+      @grid_key ||= "#{owner_type.pluralize}/#{owner_id}/#{name}/#{file_name}".downcase
     end
     
     def assign(uploaded_file)
       return nil unless valid_assignment?(uploaded_file)
-      self.file = uploaded_file
+      @tmp_file = uploaded_file
     end
     
     def file=(new_file)
@@ -46,7 +47,15 @@ module Griddle
       GridFS::GridStore.unlink(self.class.database, grid_key)
     end
     
+    def exists?
+      !file_name.nil?
+    end
+    
     private
+    
+    def save_file
+      self.file = @tmp_file if @tmp_file
+    end
     
     def valid_assignment?(file)
       file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))

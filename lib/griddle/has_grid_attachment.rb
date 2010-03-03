@@ -11,7 +11,7 @@ module Griddle
     module ClassMethods
       def has_grid_attachment name, options = {}
         write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
-        attachment_definitions[name] = {}
+        attachment_definitions[name] = options
 
         after_save :save_attached_files
         
@@ -33,7 +33,7 @@ module Griddle
       
       def attachment_for name
         @_gripster_attachments ||= {}
-        @_gripster_attachments[name] ||= Attachment.new(name, self)
+        @_gripster_attachments[name] ||= Attachment.for(name, self)
       end
       
       def each_attachment
@@ -44,6 +44,7 @@ module Griddle
       
       def save_attached_files
         each_attachment do |name, attachment|
+          attachment.owner_id = self.id
           attachment.send(:save) unless attachment.nil?
         end
       end
