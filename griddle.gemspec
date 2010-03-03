@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "griddle.gemspec",
      "lib/griddle.rb",
      "lib/griddle/attachment.rb",
      "lib/griddle/has_grid_attachment.rb",
