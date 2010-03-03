@@ -9,6 +9,8 @@ require 'griddle/has_grid_attachment'
 require 'griddle/attachment'
 require 'griddle/upfile'
 require 'griddle/style'
+require 'griddle/processor/image_magick'
+require 'griddle/processor'
 
 module Griddle
   def self.version

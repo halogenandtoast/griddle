@@ -90,6 +90,15 @@ module Griddle
         f.write new_file.read
       end
     end
+    
+    def processor
+      @processor ||= initialize_processor
+    end
+    
+    def processor= processor
+      @attributes[:processor] = processor
+      @processor = initialize_processor
+    end
 
     def save
       save_file
@@ -110,6 +119,10 @@ module Griddle
     end
     
     private
+    
+    def initialize_processor
+      Processor.new @attributes[:processor]
+    end
     
     def initialize_styles
       return {} unless @attributes[:styles] && @attributes[:styles].is_a?(Hash)
