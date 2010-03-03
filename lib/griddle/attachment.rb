@@ -1,65 +1,15 @@
 module Griddle
   class Attachment
-    #     belongs_to :owner, :polymorphic => true
-    
-    attr_accessor :attributes
-
-    def initialize(attributes = {})
-      @attributes = attributes
-    end
-    
-    def method_missing(method, *args, &block)
-      key = method.to_s.gsub(/\=$/, '')
-      if self.class.valid_attributes.include?(key)
-        if key != method.to_s
-          @attributes[key] = args[0]
-        else
-          @attributes[key]
-        end
-      else
-        super
-      end
-    end
-
-    def self.valid_attributes
-      ['name', 'owner_id', 'owner_type', 'file_name', 'file_size', 'content_type', 'styles', 'options']
-    end
-
-    def valid_attributes(attributes)
-      Hash[*attributes.select{|key, value| self.class.valid_attributes.include?(key) }.flatten]
-    end
-
-    def attributes=(attributes)
-      @attributes.merge!(attributes)
-    end
-
-    def save
-      save_file
-      collection.insert(valid_attributes(@attributes))
-    end
-
-    def styles
-      @styles ||= {}
-    end
-
-    def collection
-      @collection ||= self.class.collection
-    end
-
-    def self.collection
-      @collection ||= Griddle.database.collection('griddle.attachments')
-    end
 
     def self.attachment_for(name, owner_type, owner_id)
-      options = {'name' => name, 'owner_type' => owner_type, 'owner_id' => owner_id}
+      options = {:name => name, :owner_type => owner_type, :owner_id => owner_id}
       record = collection.find_one(options)
       return new(record) unless record.nil?
       return new(options)
     end
-    
-    def destroy
-      destroy_file
-      collection.remove({'name' => name, 'owner_type' => owner_type, 'owner_id' => owner_id})
+
+    def self.collection
+      @collection ||= Griddle.database.collection('griddle.attachments')
     end
     
     def self.for(name, owner, options = {})
@@ -72,14 +22,67 @@ module Griddle
       end
       a
     end
+
+    def self.valid_attributes
+      [:name, :owner_id, :owner_type, :file_name, :file_size, :content_type, :styles, :options]
+    end
+    #     belongs_to :owner, :polymorphic => true
     
-    def grid_key
-      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}".downcase
+    attr_accessor :attributes
+
+    def initialize(attributes = {})
+      @attributes = attributes
     end
     
     def assign(uploaded_file)
       return nil unless valid_assignment?(uploaded_file)
       @tmp_file = uploaded_file
+    end
+    
+    def attributes
+      @attributes
+    end
+
+    def attributes=(attributes)
+      @attributes.merge!(attributes).symbolize_keys
+    end
+
+    def collection
+      @collection ||= self.class.collection
+    end
+    
+    def destroy
+      destroy_file
+      collection.remove({:name => name, :owner_type => owner_type, :owner_id => owner_id})
+    end
+    
+    def method_missing(method, *args, &block)
+      key = method.to_s.gsub(/\=$/, '').to_sym
+      if self.class.valid_attributes.include?(key)
+        if key != method
+          @attributes[key] = args[0]
+        else
+          @attributes[key]
+        end
+      else
+        super
+      end
+    end
+    
+    def destroy_file
+      GridFS::GridStore.unlink(Griddle.database, grid_key)
+    end
+    
+    def exists?
+      !file_name.nil?
+    end
+    
+    def grid_key
+      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}".downcase
+    end
+    
+    def file
+      GridFS::GridStore.new(Griddle.database, grid_key, 'r') unless file_name.blank?
     end
     
     def file=(new_file)
@@ -92,17 +95,18 @@ module Griddle
         f.write new_file.read
       end
     end
-    
-    def file
-      GridFS::GridStore.new(Griddle.database, grid_key, 'r') unless file_name.blank?
+
+    def save
+      save_file
+      collection.insert(valid_attributes(@attributes))
     end
     
-    def destroy_file
-      GridFS::GridStore.unlink(Griddle.database, grid_key)
+    def styles
+      @attributes[:styles] ||= {}
     end
-    
-    def exists?
-      !file_name.nil?
+
+    def valid_attributes(attributes)
+      Hash[*attributes.select{|key, value| self.class.valid_attributes.include?(key) }.flatten]
     end
     
     private

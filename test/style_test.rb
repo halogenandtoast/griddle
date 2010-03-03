@@ -44,6 +44,14 @@ class StyleTest < Test::Unit::TestCase
         assert_equal @options[:styles][:thumb], @attachment.styles[:thumb].geometry
       end
       
+      should "save styles with the attachment" do
+        @attachment.save
+        options = {:name => @attachment.name, :owner_id => @attachment.owner_id, :owner_type => @attachment.owner_type }
+        record = Griddle::Attachment.collection.find_one(options)
+        attachment = Griddle::Attachment.new record
+        assert_equal  @attachment.styles, attachment.styles
+      end
+      
     end
     
   end

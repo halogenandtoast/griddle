@@ -1,6 +1,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'rubygems'
+gem 'activesupport', '2.3.5'
 require 'mongo_mapper'
 require 'griddle'
 require 'test/unit'
