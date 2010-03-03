@@ -10,6 +10,7 @@ module Griddle
     key :file_size, Integer
     key :content_type, String
     key :styles, Hash
+    key :options, Hash
     
     before_destroy :destroy_file
     before_save :save_file

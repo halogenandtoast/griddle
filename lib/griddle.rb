@@ -7,6 +7,7 @@ require 'mime/types'
 require 'griddle/has_grid_attachment'
 require 'griddle/attachment'
 require 'griddle/upfile'
+require 'griddle/style'
 
 module Griddle
   def self.version

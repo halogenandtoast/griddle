@@ -30,10 +30,30 @@ class HasAttachmentTest < Test::Unit::TestCase
       end
  
       should "read file from grid store" do
-        puts @document.image.grid_key
         assert_equal "image/jpeg", @file_system.find_one(:filename => @document.image.grid_key)['contentType']
       end
  
+    end
+    
+    context "with styles" do
+      
+      setup do
+        @document = DocWithStyles.new
+      end
+      
+      context "when assigned a file" do
+        
+        setup do
+          @document.image = @image
+          @document.save!
+        end
+        
+        should "have a styles" do
+          assert_kind_of Hash, @document.image.styles
+        end 
+        
+      end
+      
     end
  
     context "when multiple instances" do
