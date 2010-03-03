@@ -14,12 +14,7 @@ module Griddle
     
     def self.for(name, owner, options = {})
       a = attachment_for(name, owner.class.to_s, owner.id)
-      if options.has_key?(:styles)
-        a.styles = (options[:styles] || {}).inject({}) do |h, value|
-          h[value.first] = Style.new value.first, value.last, a
-          h
-        end
-      end
+      a.styles = options.dup.delete(:styles) || {}
       a
     end
 
@@ -31,7 +26,7 @@ module Griddle
     attr_accessor :attributes
 
     def initialize(attributes = {})
-      @attributes = attributes
+      @attributes = attributes.symbolize_keys
     end
     
     def assign(uploaded_file)
@@ -98,11 +93,16 @@ module Griddle
 
     def save
       save_file
-      collection.insert(valid_attributes(@attributes))
+      collection.insert(valid_attributes(@attributes).stringify_keys)
     end
     
     def styles
-      @attributes[:styles] ||= {}
+      @styles ||= initialize_styles
+    end
+    
+    def styles= styles
+      @attributes[:styles] = styles
+      @styles = initialize_styles
     end
 
     def valid_attributes(attributes)
@@ -110,6 +110,14 @@ module Griddle
     end
     
     private
+    
+    def initialize_styles
+      return {} unless @attributes[:styles] && @attributes[:styles].is_a?(Hash)
+      @attributes[:styles].inject({}) do |h, value|
+        h[value.first.to_sym] = Style.new value.first, value.last, self
+        h
+      end
+    end
     
     def save_file
       self.file = @tmp_file if @tmp_file

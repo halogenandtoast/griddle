@@ -49,7 +49,7 @@ class StyleTest < Test::Unit::TestCase
         options = {:name => @attachment.name, :owner_id => @attachment.owner_id, :owner_type => @attachment.owner_type }
         record = Griddle::Attachment.collection.find_one(options)
         attachment = Griddle::Attachment.new record
-        assert_equal  @attachment.styles, attachment.styles
+        assert_equal  @attachment.styles[:thumb][:geometry], attachment.styles[:thumb][:geometry]
       end
       
     end
