@@ -16,12 +16,18 @@ module Griddle
     before_save :save_file
     
     def self.for(name, owner, options = {})
-      styles = options.has_key?(:styles) ? options[:styles] : {}
-      Attachment.find_or_create_by_name_and_owner_type_and_owner_id(name, owner.class.to_s, owner.id)
+      a = Attachment.find_or_create_by_name_and_owner_type_and_owner_id(name, owner.class.to_s, owner.id)
+      if options.has_key?(:styles)
+        a.styles = (options[:styles] || {}).inject({}) do |h, value|
+          h[value.first] = Style.new value.first, value.last, a
+          h
+        end
+      end
+      a
     end
     
     def grid_key
-      @grid_key ||= "#{owner_type.pluralize}/#{owner_id}/#{name}/#{file_name}".downcase
+      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}".downcase
     end
     
     def assign(uploaded_file)

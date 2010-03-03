@@ -9,7 +9,7 @@ class AttachmentTest < Test::Unit::TestCase
       @dir = File.dirname(__FILE__) + '/fixtures'
       @image = File.open("#{@dir}/baboon.jpg", 'r')
       @doc = DocNoAttachment.create
-      @attachment = Griddle::Attachment.new(:image, @doc)
+      @attachment = Griddle::Attachment.for(:image, @doc)
     end
     
     should "have a #grid_key" do
@@ -18,7 +18,8 @@ class AttachmentTest < Test::Unit::TestCase
     
     should "#assign a valid assignment" do
       @attachment.assign(@image)
-      assert_kind_of  GridFS::GridStore, @attachment.file
+      @attachment.save
+      assert  @attachment.file.is_a? GridFS::GridStore
       assert GridFS::GridStore.exist?(DocNoAttachment.database, @attachment.grid_key)
     end
     

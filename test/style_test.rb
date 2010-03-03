@@ -15,7 +15,7 @@ class StyleTest < Test::Unit::TestCase
       }
       
       @doc = DocNoAttachment.create
-      @attachment = Griddle::Attachment.new(:image, @doc, @options)
+      @attachment = Griddle::Attachment.for(:image, @doc, @options)
     end
     
     context "and a file" do
