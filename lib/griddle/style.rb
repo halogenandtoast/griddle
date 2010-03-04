@@ -32,7 +32,33 @@ module Griddle
     end
     
     def attachment_for
-      Attachment.attachment_for("#{attachment.name}/#{name}",attachment.owner_type,attachment.owner_id)
+      return @attachment_for_style unless @attachment_for_style.nil?
+      @attachment_for_style = Attachment.attachment_for("#{attachment.name}/#{name}",attachment.owner_type,attachment.owner_id)
+      
+      
+      # temp_file = @attachment_for_style.grid_key + attachment.file_name
+      # 
+      # FileUtils.mkdir_p(@attachment_for_style.grid_key)
+      # File.open(temp_file,'w') do |f|
+      #   f.write attachment.file.read
+      # end
+      # file = File.new(temp_file, 'rb')
+      # 
+      # scale = geometry.gsub(/#/,'')
+      # cmd = "convert #{file.path} "
+      # cmd << "-resize #{scale} " unless scale.blank?
+      # cmd << "#{file.path} "
+      # 
+      # puts cmd
+      # 
+      # `#{cmd}`
+      
+      file = @attachment_for_style.processor.resize(geometry)
+      
+      @attachment_for_style.assign(file)
+      @attachment_for_style.save
+      FileUtils.rm_r(@attachment_for_style.grid_key.split('/').first)
+      @attachment_for_style
     end
     
     def geometry

@@ -11,8 +11,8 @@ require 'griddle/upfile'
 require 'griddle/style'
 require 'griddle/processor/image_magick'
 require 'griddle/processor'
-
-require 'griddle/foo'
+require 'fileutils'
+require 'tempfile'
 
 module Griddle
   def self.version

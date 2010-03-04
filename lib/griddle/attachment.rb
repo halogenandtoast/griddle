@@ -74,6 +74,19 @@ module Griddle
       !file_name.nil?
     end
     
+    def generate_system_file
+      temp_file = grid_key + file_name
+      
+      unless File.exists? temp_file
+        FileUtils.mkdir_p(grid_key)
+        File.open(temp_file,'w') do |f|
+         f.write file.read
+        end
+      end
+      
+      File.new(temp_file, 'rb')
+    end
+    
     def grid_key
       @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}".downcase
     end
@@ -91,15 +104,6 @@ module Griddle
       GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
         f.write new_file.read
       end
-    end
-    
-    def processor
-      @processor ||= initialize_processor
-    end
-    
-    def processor= processor
-      @attributes[:processor] = processor
-      @processor = initialize_processor
     end
 
     def save
@@ -122,8 +126,17 @@ module Griddle
     
     private
     
+    def processor
+      @processor ||= initialize_processor
+    end
+    
+    def processor= processor
+      @attributes[:processor] = processor
+      @processor = initialize_processor
+    end
+    
     def initialize_processor
-      Processor.new @attributes[:processor]
+      Processor.new generate_system_file, @attributes[:processor]
     end
     
     def initialize_styles

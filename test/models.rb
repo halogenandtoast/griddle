@@ -15,7 +15,7 @@ class DocWithStyles
   include Griddle::HasGridAttachment
   
   has_grid_attachment :image, :styles => {
-    :thumb => '50x50#'
+    :thumb => '50x50'
   }
   
 end

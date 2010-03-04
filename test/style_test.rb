@@ -10,7 +10,7 @@ class StyleTest < Test::Unit::TestCase
       @image = File.open("#{@dir}/baboon.jpg", 'r')
       @options = {
         :styles=>{
-          :thumb => "50x50#"
+          :thumb => "50x50"
         }
       }
       
