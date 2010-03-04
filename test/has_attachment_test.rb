@@ -48,9 +48,9 @@ class HasAttachmentTest < Test::Unit::TestCase
           @document.save!
         end
         
-        should "have a styles" do
-          assert_kind_of Hash, @document.image.styles
-        end 
+        should "create a thumbnail version" do
+          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/thumb/", @document.image.thumb.grid_key
+        end
         
       end
       

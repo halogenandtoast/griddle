@@ -59,6 +59,8 @@ module Griddle
         else
           @attributes[key]
         end
+      elsif @attributes[:styles].has_key?(method)
+        @styles[method].attachment_for
       else
         super
       end

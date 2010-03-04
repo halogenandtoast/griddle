@@ -31,6 +31,10 @@ module Griddle
       @attachment
     end
     
+    def attachment_for
+      Attachment.attachment_for("#{attachment.name}/#{name}",attachment.owner_type,attachment.owner_id)
+    end
+    
     def geometry
       @definition[:geometry]
     end

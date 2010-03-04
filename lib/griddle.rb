@@ -12,6 +12,8 @@ require 'griddle/style'
 require 'griddle/processor/image_magick'
 require 'griddle/processor'
 
+require 'griddle/foo'
+
 module Griddle
   def self.version
     "0.0.1"
