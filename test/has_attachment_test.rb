@@ -32,7 +32,24 @@ class HasAttachmentTest < Test::Unit::TestCase
       should "read file from grid store" do
         assert_equal "image/jpeg", @file_system.find_one(:filename => @document.image.grid_key)['contentType']
       end
+      
+      should "exist" do
+        assert @document.image.exists?
+      end
  
+    end
+    
+    context "when assigned nil or blank" do
+      
+      setup do
+        @document.image = nil
+        @document.save!
+      end
+      
+      should "not exist" do
+        assert !@document.image.exists?
+      end
+      
     end
     
     context "with styles" do
