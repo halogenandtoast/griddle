@@ -30,8 +30,9 @@ module Griddle
     end
     
     def assign(uploaded_file)
-      return nil unless valid_assignment?(uploaded_file)
-      self.file = uploaded_file
+      if valid_assignment?(uploaded_file)
+        self.file = uploaded_file
+      end
     end
     
     def attributes

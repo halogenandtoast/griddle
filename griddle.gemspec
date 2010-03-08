@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{griddle}
-  s.version = "0.0.0"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Mongeau"]
-  s.date = %q{2010-03-03}
+  s.date = %q{2010-03-07}
   s.description = %q{GridFS made simple...}
   s.email = %q{matt@toastyapps.com}
   s.extra_rdoc_files = [
@@ -27,6 +27,8 @@ Gem::Specification.new do |s|
      "lib/griddle.rb",
      "lib/griddle/attachment.rb",
      "lib/griddle/has_grid_attachment.rb",
+     "lib/griddle/processor.rb",
+     "lib/griddle/processor/image_magick.rb",
      "lib/griddle/style.rb",
      "lib/griddle/upfile.rb",
      "rails/init.rb",
@@ -36,6 +38,7 @@ Gem::Specification.new do |s|
      "test/fixtures/sample.pdf",
      "test/has_attachment_test.rb",
      "test/models.rb",
+     "test/processor_test.rb",
      "test/style_test.rb",
      "test/test_helper.rb",
      "test/upfile_test.rb"
@@ -43,12 +46,13 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/toastyapps/griddle}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{GridFS made simple.}
   s.test_files = [
     "test/attachment_test.rb",
      "test/has_attachment_test.rb",
      "test/models.rb",
+     "test/processor_test.rb",
      "test/style_test.rb",
      "test/test_helper.rb",
      "test/upfile_test.rb"
