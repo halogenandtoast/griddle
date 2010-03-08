@@ -143,7 +143,7 @@ module Griddle
     end
     
     def valid_assignment?(file)
-      !file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
+      (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
     
   end

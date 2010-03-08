@@ -39,10 +39,23 @@ class HasAttachmentTest < Test::Unit::TestCase
  
     end
     
-    context "when assigned nil or blank" do
+    context "when assigned nil" do
       
       setup do
         @document.image = nil
+        @document.save!
+      end
+      
+      should "not exist" do
+        assert !@document.image.exists?
+      end
+      
+    end
+    
+    context "when assigned blank" do
+      
+      setup do
+        @document.image = ""
         @document.save!
       end
       
