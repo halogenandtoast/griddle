@@ -34,6 +34,10 @@ class AttachmentTest < Test::Unit::TestCase
         assert !GridFS::GridStore.exist?(DocNoAttachment.database, @attachment.grid_key)
       end
       
+      should "have return a url" do
+        assert_equal "griddle/#{@attachment.grid_key}/#{@attachment.file_name}", @attachment.url
+      end
+      
     end
     
   end

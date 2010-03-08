@@ -113,6 +113,10 @@ module Griddle
       @attributes[:styles] = styles
       @styles = initialize_styles
     end
+    
+    def url
+      "griddle/#{grid_key}/#{file_name}"
+    end
 
     def valid_attributes(attributes)
       Hash[*attributes.select{|key, value| self.class.valid_attributes.include?(key) }.flatten]
