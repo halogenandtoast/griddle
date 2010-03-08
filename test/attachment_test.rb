@@ -35,7 +35,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
       
       should "have return a url" do
-        assert_equal "griddle/#{@attachment.grid_key}/#{@attachment.file_name}", @attachment.url
+        assert_equal "/griddle/#{@attachment.grid_key}", @attachment.url
       end
       
     end

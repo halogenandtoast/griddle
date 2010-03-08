@@ -31,7 +31,7 @@ module Griddle
     
     def assign(uploaded_file)
       return nil unless valid_assignment?(uploaded_file)
-      @tmp_file = uploaded_file
+      self.file = uploaded_file
     end
     
     def attributes
@@ -73,7 +73,7 @@ module Griddle
     end
     
     def grid_key
-      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{file_name}".downcase
+      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{self.file_name}".downcase
     end
     
     def file
@@ -81,14 +81,11 @@ module Griddle
     end
     
     def file=(new_file)
-      file_name = new_file.respond_to?(:original_filename) ? new_file.original_filename : File.basename(new_file.path)
-      self.file_name = file_name
+      filename = new_file.respond_to?(:original_filename) ? new_file.original_filename : File.basename(new_file.path)
+      self.file_name = filename
       self.file_size = File.size(new_file)
       self.content_type = new_file.content_type
-      
-      GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
-        f.write new_file.read
-      end
+      @tmp_file = new_file
     end
     
     def processor
@@ -115,7 +112,7 @@ module Griddle
     end
     
     def url
-      "griddle/#{grid_key}/#{file_name}"
+      "/griddle/#{grid_key}"
     end
 
     def valid_attributes(attributes)
@@ -137,11 +134,15 @@ module Griddle
     end
     
     def save_file
-      self.file = @tmp_file if @tmp_file
+      unless @tmp_file.nil?
+        GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
+          f.write @tmp_file.read
+        end
+      end
     end
     
     def valid_assignment?(file)
-      file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
+      !file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
     
   end
