@@ -134,7 +134,7 @@ module Griddle
       raise "Invalid style name :#{style_name}. #{style_name} is a reserved word." if respond_to?(style_name) || !attributes[style_name.to_sym].nil?
       
       attrs = attributes.merge({
-        :name => style_name.to_sym,
+        :name => "#{name}/#{style_name}",
         :styles => {}
       })
       self.class_eval do
