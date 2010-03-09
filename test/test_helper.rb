@@ -6,6 +6,7 @@ require 'mongo_mapper'
 require 'griddle'
 require 'test/unit'
 require 'shoulda'
+require 'tempfile'
 
 TEST_DB = 'griddle-test' unless Object.const_defined?("TEST_DB")
  

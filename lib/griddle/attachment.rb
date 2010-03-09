@@ -134,7 +134,7 @@ module Griddle
       raise "Invalid style name :#{style_name}. #{style_name} is a reserved word." if respond_to?(style_name) || !attributes[style_name.to_sym].nil?
       
       attrs = attributes.merge({
-        :name => "#{name}/#{style_name}",
+        :name => style_name.to_sym,
         :styles => {}
       })
       self.class_eval do
@@ -144,7 +144,7 @@ module Griddle
         end
       
         define_method("#{style_name}=") do |file|
-          Attachment.for(attrs).assign(file)
+          Attachment.attachment_for(attrs).assign(file)
         end
         
       end
@@ -166,6 +166,7 @@ module Griddle
     
     def save_file
       unless @tmp_file.nil?
+        @tmp_file.rewind
         GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
           f.write @tmp_file.read
         end
