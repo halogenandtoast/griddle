@@ -80,8 +80,46 @@ class HasAttachmentTest < Test::Unit::TestCase
         
         should "have a styles" do
           assert_kind_of Hash, @document.image.styles
-        end 
+        end
         
+        should "have a method for each style" do
+          assert @document.image.respond_to? :thumb
+        end
+        
+        should "be a kind of attachment" do
+          assert_kind_of Griddle::Attachment, @document.image.thumb
+        end
+        
+        should "style should have a grid_key for thumb" do
+          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/thumb/#{@document.image.thumb.file_name}", @document.image.thumb.grid_key
+        end
+        
+        should "style should have a file for thumb" do
+          assert @document.image.thumb.exists?
+        end
+        
+        should "style should have a grid_key for medium" do
+          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/medium/#{@document.image.thumb.file_name}", @document.image.medium.grid_key
+        end
+        
+        should "style should have a file for medium" do
+          assert @document.image.medium.exists?
+        end
+        
+      end
+      
+    end
+    
+    context "with a invalid style name" do
+      
+      setup do
+        @document = DocWithInvalidStyles.new
+      end
+      
+      should "raise an error indicating an invalid style name" do
+        assert_raise RuntimeError do
+          @document.image = @image
+        end
       end
       
     end

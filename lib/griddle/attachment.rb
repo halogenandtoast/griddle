@@ -1,9 +1,10 @@
 module Griddle
   class Attachment
 
-    def self.attachment_for(name, owner_type, owner_id)
-      options = {:name => name, :owner_type => owner_type, :owner_id => owner_id}
-      record = collection.find_one(options)
+    def self.attachment_for(options)
+      options.symbolize_keys!
+      options_for_search = {:name => options[:name], :owner_type => options[:owner_type], :owner_id => options[:owner_id]}
+      record = collection.find_one(options_for_search)
       return new(record) unless record.nil?
       return new(options)
     end
@@ -13,9 +14,11 @@ module Griddle
     end
     
     def self.for(name, owner, options = {})
-      a = attachment_for(name, owner.class.to_s, owner.id)
-      a.styles = options.dup.delete(:styles) || {}
-      a
+      attachment_for(options.merge({
+        :name => name,
+        :owner_type => owner.class.to_s,
+        :owner_id => owner.id
+      }))
     end
 
     def self.valid_attributes
@@ -27,6 +30,9 @@ module Griddle
 
     def initialize(attributes = {})
       @attributes = attributes.symbolize_keys
+      initialize_processor
+      initialize_styles
+      create_attachments_for_styles
     end
     
     def assign(uploaded_file)
@@ -90,12 +96,12 @@ module Griddle
     end
     
     def processor
-      @processor ||= initialize_processor
+      @processor
     end
     
     def processor= processor
       @attributes[:processor] = processor
-      @processor = initialize_processor
+      initialize_processor
     end
 
     def save
@@ -104,16 +110,12 @@ module Griddle
     end
     
     def styles
-      @styles ||= initialize_styles
+      @styles
     end
     
     def styles= styles
       @attributes[:styles] = styles
-      @styles = initialize_styles
-    end
-    
-    def url
-      "/griddle/#{grid_key}"
+      initialize_styles
     end
 
     def valid_attributes(attributes)
@@ -122,15 +124,43 @@ module Griddle
     
     private
     
+    def create_attachments_for_styles
+      self.styles.each do |h|
+        create_style_attachment h[0]
+      end
+    end
+    
+    def create_style_attachment style_name
+      raise "Invalid style name :#{style_name}. #{style_name} is a reserved word." if respond_to?(style_name) || !attributes[style_name.to_sym].nil?
+      
+      attrs = attributes.merge({
+        :name => "#{name}/#{style_name}",
+        :styles => {}
+      })
+      self.class_eval do
+        
+        define_method(style_name) do |*args|
+          Attachment.attachment_for(attrs)
+        end
+      
+        define_method("#{style_name}=") do |file|
+          Attachment.for(attrs).assign(file)
+        end
+        
+      end
+    end
+    
     def initialize_processor
-      Processor.new @attributes[:processor]
+      @processor = Processor.new @attributes[:processor]
     end
     
     def initialize_styles
-      return {} unless @attributes[:styles] && @attributes[:styles].is_a?(Hash)
-      @attributes[:styles].inject({}) do |h, value|
-        h[value.first.to_sym] = Style.new value.first, value.last, self
-        h
+      @styles = {} 
+      if @attributes[:styles] && @attributes[:styles].is_a?(Hash)
+        @styles = @attributes[:styles].inject({}) do |h, value|
+          h[value.first.to_sym] = Style.new value.first, value.last, self
+          h
+        end
       end
     end
     
@@ -138,6 +168,12 @@ module Griddle
       unless @tmp_file.nil?
         GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
           f.write @tmp_file.read
+        end
+        styles.each do |h|
+          processed_file = processor.process_image(@tmp_file, h[1])
+          style_attachment = send(h[0])
+          style_attachment.assign(processed_file)
+          style_attachment.save
         end
       end
     end

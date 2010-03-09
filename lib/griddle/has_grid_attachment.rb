@@ -16,11 +16,11 @@ module Griddle
         after_save :save_attached_files
         
         define_method(name) do |*args|
-          attachment_for(name)
+          attachment_for(name, options)
         end
         
         define_method("#{name}=") do |file|
-          attachment_for(name).assign(file)
+          attachment_for(name, options).assign(file)
         end        
       end
       
@@ -31,9 +31,9 @@ module Griddle
     
     module InstanceMethods
       
-      def attachment_for name
+      def attachment_for name, options = {}
         @_gripster_attachments ||= {}
-        @_gripster_attachments[name] ||= Attachment.for(name, self)
+        @_gripster_attachments[name] ||= Attachment.for(name, self, options)
       end
       
       def each_attachment

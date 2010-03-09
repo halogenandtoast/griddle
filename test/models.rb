@@ -15,6 +15,19 @@ class DocWithStyles
   include Griddle::HasGridAttachment
   
   has_grid_attachment :image, :styles => {
+    :medium => "150x50",
+    :thumb => '50x50#'
+  }
+  
+end
+
+# invalid because one of the styles is a reserved word
+class DocWithInvalidStyles
+  include MongoMapper::Document
+  include Griddle::HasGridAttachment
+  
+  has_grid_attachment :image, :styles => {
+    :file => "50x50#",
     :thumb => '50x50#'
   }
   
