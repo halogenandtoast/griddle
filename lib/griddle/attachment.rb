@@ -88,7 +88,7 @@ module Griddle
     end
     
     def file=(new_file)
-      filename = new_file.respond_to?(:original_filename) ? new_file.original_filename : File.basename(new_file.path)
+      filename = clean_filename(new_file.respond_to?(:original_filename) ? new_file.original_filename : File.basename(new_file.path))
       self.file_name = filename
       self.file_size = File.size(new_file)
       self.content_type = new_file.content_type
@@ -123,6 +123,11 @@ module Griddle
     end
     
     private
+    
+    def clean_filename str
+      tmp_file_reg = /\.([a-z]{2}[a-z0-9]{0,2})#{Time.now.strftime('%Y%m%d')}-.+/
+      str.gsub(tmp_file_reg,'.\1').gsub(/[?:\/*""<>|]+/,'_')
+    end
     
     def create_attachments_for_styles
       self.styles.each do |h|
@@ -171,7 +176,7 @@ module Griddle
           f.write @tmp_file.read
         end
         styles.each do |h|
-          processed_file = processor.process_image(@tmp_file, h[1])
+          processed_file = processor.process_image("#{file_name}", @tmp_file, h[1])
           style_attachment = send(h[0])
           style_attachment.assign(processed_file)
           style_attachment.save
