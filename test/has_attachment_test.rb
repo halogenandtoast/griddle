@@ -102,7 +102,8 @@ class HasAttachmentTest < Test::Unit::TestCase
         {
           :resized => "150 x 100",
           :fitted => "150 x 114",
-          :cropped => '60 x 50'
+          :cropped => '60 x 50',
+          :cropped_square => '50 x 50'
         }.each do |style|
         
           should "have the correct dimensions for #{style[0]}" do
