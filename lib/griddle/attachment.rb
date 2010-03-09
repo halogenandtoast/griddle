@@ -176,7 +176,7 @@ module Griddle
           f.write @tmp_file.read
         end
         styles.each do |h|
-          processed_file = processor.process_image("#{file_name}", @tmp_file, h[1])
+          processed_file = processor.process_image(@tmp_file, h[1])
           style_attachment = send(h[0])
           style_attachment.assign(processed_file)
           style_attachment.save

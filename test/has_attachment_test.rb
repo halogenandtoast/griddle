@@ -83,38 +83,39 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
         
         should "have a method for each style" do
-          assert @document.image.respond_to? :thumb
+          assert @document.image.respond_to? :cropped
         end
         
         should "be a kind of attachment" do
-          assert_kind_of Griddle::Attachment, @document.image.thumb
+          assert_kind_of Griddle::Attachment, @document.image.cropped
         end
         
-        should "style should have a grid_key for thumb" do
-          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/thumb/#{@document.image.thumb.file_name}", @document.image.thumb.grid_key
+        should "style should have a grid_key for cropped" do
+          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/cropped/#{@document.image.cropped.file_name}", @document.image.cropped.grid_key
         end
         
-        should "style should have a file for thumb" do
-          assert @document.image.thumb.exists?
+        should "style should have a file for cropped" do
+          assert @document.image.cropped.exists?
+          assert !@document.image.cropped.file.read.blank?
         end
         
-        should "style should have a grid_key for medium" do
-          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/medium/#{@document.image.medium.file_name}", @document.image.medium.grid_key
-        end
+        {
+          :resized => "150 x 100",
+          :fitted => "150 x 114",
+          :cropped => '60 x 50'
+        }.each do |style|
         
-        should "style should have a file for medium" do
-          assert @document.image.medium.exists?
-          assert !@document.image.medium.file.read.blank?
-        end
-        
-        should "resize the medium image" do
-          temp = Tempfile.new "medium.jpg"
-          file_path = File.dirname(temp.path) + '/' + @document.image.medium.file_name
-          File.open(file_path, 'w') do |f|
-            f.write @document.image.medium.file.read
+          should "have the correct dimensions for #{style[0]}" do
+            temp = Tempfile.new "#{style[0]}.jpg"
+            style_attachment = @document.image.send(style[0])
+            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
+            File.open(file_path, 'w') do |f|
+              f.write style_attachment.file.read
+            end
+            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
+            assert_equal style[1], `#{cmd}`.chomp
           end
-          cmd = %Q[identify -format "%[fx:w]x%[fx:h]" #{file_path}]
-          assert_equal "150x100", `#{cmd}`.chomp
+          
         end
         
       end

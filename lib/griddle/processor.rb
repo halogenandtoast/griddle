@@ -8,10 +8,10 @@ module Griddle
       self.klass = self.class.const_get "#{processor_class}"
     end
     
-    def process_image name, file, style
+    def process_image file, style
       processor = self.klass.new
       raise "Define in subclass" unless processor.respond_to? :process_image
-      processor.process_image(name, file, style)
+      processor.process_image(file, style)
     end
     
     protected
