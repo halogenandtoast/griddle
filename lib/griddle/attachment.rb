@@ -3,7 +3,7 @@ module Griddle
 
     def self.attachment_for(options)
       options.symbolize_keys!
-      options_for_search = {:name => options[:name], :owner_type => options[:owner_type], :owner_id => options[:owner_id]}
+      options_for_search = {:name => options[:name].to_sym, :owner_type => options[:owner_type].to_s, :owner_id => options[:owner_id].to_s}
       record = collection.find_one(options_for_search)
       return new(record) unless record.nil?
       return new(options)
@@ -93,6 +93,18 @@ module Griddle
       self.file_size = File.size(new_file)
       self.content_type = new_file.content_type
       @tmp_file = new_file
+    end
+    
+    def name= name
+      @attributes[:name] = name.to_sym
+    end
+    
+    def owner_id= id
+      @attributes[:owner_id] = id.to_s
+    end
+    
+    def owner_type= str
+      @attributes[:owner_type] = str.to_s
     end
     
     def processor
