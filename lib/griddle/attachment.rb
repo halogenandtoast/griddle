@@ -152,6 +152,7 @@ module Griddle
       
       attrs = attributes.merge({
         :name => "#{name}/#{style_name}",
+        :owner_id => @attributes[:owner_id].to_s,
         :styles => {}
       })
       self.class_eval do

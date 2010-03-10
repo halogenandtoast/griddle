@@ -109,6 +109,7 @@ class HasAttachmentTest < Test::Unit::TestCase
           should "have the correct dimensions for #{style[0]}" do
             temp = Tempfile.new "#{style[0]}.jpg"
             style_attachment = @document.image.send(style[0])
+            
             file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
             File.open(file_path, 'w') do |f|
               f.write style_attachment.file.read
