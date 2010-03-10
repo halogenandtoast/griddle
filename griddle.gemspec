@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{griddle}
-  s.version = "0.0.5"
+  s.version = "0.0.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Mongeau"]
@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
      "test/fixtures/sample.pdf",
      "test/has_attachment_test.rb",
      "test/models.rb",
+     "test/mongo_mapper_models.rb",
      "test/processor_test.rb",
      "test/style_test.rb",
      "test/test_helper.rb",
@@ -52,6 +53,7 @@ Gem::Specification.new do |s|
     "test/attachment_test.rb",
      "test/has_attachment_test.rb",
      "test/models.rb",
+     "test/mongo_mapper_models.rb",
      "test/processor_test.rb",
      "test/style_test.rb",
      "test/test_helper.rb",
@@ -64,14 +66,14 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<shoulda>, [">= 0"])
-      s.add_runtime_dependency(%q<active_support>, ["2.3.5"])
+      s.add_runtime_dependency(%q<mongo_mapper>, [">= 0"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
-      s.add_dependency(%q<active_support>, ["2.3.5"])
+      s.add_dependency(%q<mongo_mapper>, [">= 0"])
     end
   else
     s.add_dependency(%q<shoulda>, [">= 0"])
-    s.add_dependency(%q<active_support>, ["2.3.5"])
+    s.add_dependency(%q<mongo_mapper>, [">= 0"])
   end
 end
 
