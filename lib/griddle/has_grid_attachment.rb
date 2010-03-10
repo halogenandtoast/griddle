@@ -13,7 +13,7 @@ module Griddle
         write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
         attachment_definitions[name] = options
 
-        after_save :save_attached_files
+        after_save :save_attached_files if respond_to? :after_save
         
         define_method(name) do |*args|
           attachment_for(name, options)

@@ -149,5 +149,26 @@ class HasAttachmentTest < Test::Unit::TestCase
     end
  
   end
+  
+  context "A Document with no object model" do
+    
+    setup do
+      @document = Document.new
+      @dir = File.dirname(__FILE__) + '/fixtures'
+      @image = File.open("#{@dir}/baboon.jpg", 'r')
+    end
+    
+    should "have a method for save_attached_files" do
+      assert @document.respond_to? :save_attached_files
+    end
+    
+    should "save_attached_files" do
+      @document.save_attached_files
+      attachment = Griddle::Attachment.for(:image, @document)
+      attachment.attributes.delete(:_id)
+      assert_equal @document.image.attributes, attachment.attributes
+    end
+    
+  end
  
 end
