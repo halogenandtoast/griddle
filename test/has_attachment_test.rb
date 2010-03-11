@@ -91,7 +91,7 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
         
         should "style should have a grid_key for cropped" do
-          assert_equal "#{@document.class.to_s.tableize}/#{@document.id}/image/cropped/#{@document.image.cropped.file_name}", @document.image.cropped.grid_key
+          assert_equal "doc_with_styles/#{@document.id}/image/cropped/baboon.jpg", @document.image.cropped.grid_key
         end
         
         should "style should have a file for cropped" do

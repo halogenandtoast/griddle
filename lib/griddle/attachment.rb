@@ -192,6 +192,7 @@ module Griddle
           processed_file = processor.process_image(@tmp_file, h[1])
           style_attachment = send(h[0])
           style_attachment.assign(processed_file)
+          style_attachment.file_name = self.file_name
           style_attachment.save
         end
       end
