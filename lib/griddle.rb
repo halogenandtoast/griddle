@@ -5,6 +5,7 @@ else
 end
 require 'rubygems'
 require 'mime/types'
+require 'tempfile'
 require 'griddle/has_grid_attachment'
 require 'griddle/attachment'
 require 'griddle/upfile'
@@ -14,7 +15,7 @@ require 'griddle/processor'
 
 module Griddle
   def self.version
-    "0.0.1"
+    File.read(File.join(File.dirname(__FILE__), "..", "VERSION")).chomp
   end
   
   def self.database
