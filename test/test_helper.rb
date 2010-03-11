@@ -9,6 +9,7 @@ require 'griddle'
 require 'test/unit'
 require 'shoulda'
 require 'tempfile'
+require 'rack'
 
 TEST_DB = 'griddle-test' unless Object.const_defined?("TEST_DB")
  

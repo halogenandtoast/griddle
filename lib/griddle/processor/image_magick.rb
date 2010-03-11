@@ -25,15 +25,13 @@ module Griddle
       def process_image file, style
         @style = style
         @file = file
-        @destination_file = Tempfile.new File.basename(@file.path)
+        @destination_file = Tempfile.new @file.original_filename
         if crop?
           fit(resize_geometry_for_crop)
           crop unless square_image?
         else
           fit
         end
-        # `mkdir -p ~/Desktop/griddle_resized`
-        # `cp #{@destination_file.path} ~/Desktop/griddle_resized/#{style.geometry.gsub(/#/,'_cropped')}_#{File.basename(@file.path)}`
         @destination_file
       end
       

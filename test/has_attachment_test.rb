@@ -120,6 +120,46 @@ class HasAttachmentTest < Test::Unit::TestCase
           
         end
         
+      end      
+    
+      context "when assigned a Rack::Utils::Multipart::UploadedFile" do
+      
+        setup do
+          temp_file = Rack::Utils::Multipart::UploadedFile.new @image.path
+          @document.image = temp_file
+          @document.save
+        end
+        
+        should "style should have a grid_key for cropped" do
+          assert_equal "doc_with_styles/#{@document.id}/image/cropped/baboon.jpg", @document.image.cropped.grid_key
+        end
+        
+        should "style should have a file for cropped" do
+          assert @document.image.cropped.exists?
+          assert !@document.image.cropped.file.read.blank?
+        end
+        
+        {
+          :resized => "150 x 100",
+          :fitted => "150 x 114",
+          :cropped => '60 x 50',
+          :cropped_square => '50 x 50'
+        }.each do |style|
+        
+          should "have the correct dimensions for #{style[0]}" do
+            temp = Tempfile.new "#{style[0]}.jpg"
+            style_attachment = @document.image.send(style[0])
+            
+            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
+            File.open(file_path, 'w') do |f|
+              f.write style_attachment.file.read
+            end
+            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
+            assert_equal style[1], `#{cmd}`.chomp
+          end
+          
+        end
+      
       end
       
     end

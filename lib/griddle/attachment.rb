@@ -90,7 +90,7 @@ module Griddle
     def file=(new_file)
       filename = clean_filename(new_file.respond_to?(:original_filename) ? new_file.original_filename : File.basename(new_file.path))
       self.file_name = filename
-      self.file_size = File.size(new_file)
+      self.file_size = File.size(new_file.path)
       self.content_type = new_file.content_type
       @tmp_file = new_file
     end
@@ -192,7 +192,6 @@ module Griddle
           processed_file = processor.process_image(@tmp_file, h[1])
           style_attachment = send(h[0])
           style_attachment.assign(processed_file)
-          style_attachment.file_name = self.file_name
           style_attachment.save
         end
       end
