@@ -15,7 +15,7 @@ require 'griddle/processor'
 
 module Griddle
   def self.version
-    File.read(File.join(File.dirname(__FILE__), "..", "VERSION")).chomp
+    @version ||= File.read(File.join(File.dirname(__FILE__), "..", "VERSION")).chomp
   end
   
   def self.database
