@@ -28,7 +28,7 @@ class HasAttachmentTest < Test::Unit::TestCase
       should "should return an Attachment" do
         assert_equal(Griddle::Attachment, @document.image.class)
       end
- 
+       
       should "read file from grid store" do
         assert_equal "image/jpeg", @file_system.find_one(:filename => @document.image.grid_key)['contentType']
       end
@@ -71,7 +71,7 @@ class HasAttachmentTest < Test::Unit::TestCase
         @document = DocWithStyles.new
       end
       
-      context "when assigned a file" do
+      context "when assigned an image that is wider than taller" do
         
         setup do
           @document.image = @image
@@ -79,30 +79,31 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
         
         should "have a styles" do
-          assert_kind_of Hash, @document.image.styles
-        end
-        
-        should "have a method for each style" do
-          assert @document.image.respond_to? :cropped
-        end
-        
-        should "be a kind of attachment" do
-          assert_kind_of Griddle::Attachment, @document.image.cropped
-        end
-        
-        should "style should have a grid_key for cropped" do
-          assert_equal "doc_with_styles/#{@document.id}/image/cropped/baboon.jpg", @document.image.cropped.grid_key
-        end
-        
-        should "style should have a file for cropped" do
-          assert @document.image.cropped.exists?
-          assert !@document.image.cropped.file.read.blank?
-        end
+            assert_kind_of Hash, @document.image.styles
+          end
+          
+          should "have a method for each style" do
+            assert @document.image.respond_to? :cropped_wide
+          end
+          
+          should "be a kind of attachment" do
+            assert_kind_of Griddle::Attachment, @document.image.cropped_wide
+          end
+          
+          should "style should have a grid_key for cropped" do
+            assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/baboon.jpg", @document.image.cropped_wide.grid_key
+          end
+          
+          should "style should have a file for cropped" do
+            assert @document.image.cropped_wide.exists?
+            assert !@document.image.cropped_wide.file.read.blank?
+          end
         
         {
           :resized => "150 x 100",
           :fitted => "150 x 114",
-          :cropped => '60 x 50',
+          :cropped_wide => '60 x 50',
+          :cropped_tall => '50 x 60',
           :cropped_square => '50 x 50'
         }.each do |style|
         
@@ -120,7 +121,89 @@ class HasAttachmentTest < Test::Unit::TestCase
           
         end
         
-      end      
+      end     
+      
+      context "when assigned an image that is taller than wider" do
+      
+        setup do
+          @image = File.new("#{@dir}/climenole.jpeg", 'rb')
+          @document.image = @image
+          @document.save
+        end
+        
+        should "style should have a grid_key for cropped" do
+          assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/climenole.jpeg", @document.image.cropped_wide.grid_key
+        end
+        
+        should "style should have a file for cropped_wide" do
+          assert @document.image.cropped_wide.exists?
+          assert !@document.image.cropped_wide.file.read.blank?
+        end
+        
+        {
+          :resized => "150 x 100",
+          :fitted => "94 x 150",
+          :cropped_wide => '60 x 50',
+          :cropped_tall => '50 x 60',
+          :cropped_square => '50 x 50'
+        }.each do |style|
+        
+          should "have the correct dimensions for #{style[0]}" do
+            temp = Tempfile.new "#{style[0]}.jpg"
+            style_attachment = @document.image.send(style[0])
+            
+            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
+            File.open(file_path, 'w') do |f|
+              f.write style_attachment.file.read
+            end
+            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
+            assert_equal style[1], `#{cmd}`.chomp
+          end
+          
+        end
+      
+      end 
+      
+      context "when assigned an image that is square" do
+      
+        setup do
+          @image = File.new("#{@dir}/squid.png", 'rb')
+          @document.image = @image
+          @document.save
+        end
+        
+        should "style should have a grid_key for cropped" do
+          assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/squid.png", @document.image.cropped_wide.grid_key
+        end
+        
+        should "style should have a file for cropped" do
+          assert @document.image.cropped_wide.exists?
+          assert !@document.image.cropped_wide.file.read.blank?
+        end
+        
+        {
+          :resized => "150 x 100",
+          :fitted => "150 x 150",
+          :cropped_wide => '60 x 50',
+          :cropped_tall => '50 x 60',
+          :cropped_square => '50 x 50'
+        }.each do |style|
+        
+          should "have the correct dimensions for #{style[0]}" do
+            temp = Tempfile.new "#{style[0]}.jpg"
+            style_attachment = @document.image.send(style[0])
+            
+            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
+            File.open(file_path, 'w') do |f|
+              f.write style_attachment.file.read
+            end
+            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
+            assert_equal style[1], `#{cmd}`.chomp
+          end
+          
+        end
+      
+      end 
     
       context "when assigned a Rack::Utils::Multipart::UploadedFile" do
       
@@ -131,18 +214,19 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
         
         should "style should have a grid_key for cropped" do
-          assert_equal "doc_with_styles/#{@document.id}/image/cropped/baboon.jpg", @document.image.cropped.grid_key
+          assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/baboon.jpg", @document.image.cropped_wide.grid_key
         end
         
         should "style should have a file for cropped" do
-          assert @document.image.cropped.exists?
-          assert !@document.image.cropped.file.read.blank?
+          assert @document.image.cropped_wide.exists?
+          assert !@document.image.cropped_wide.file.read.blank?
         end
         
         {
           :resized => "150 x 100",
           :fitted => "150 x 114",
-          :cropped => '60 x 50',
+          :cropped_wide => '60 x 50',
+          :cropped_tall => '50 x 60',
           :cropped_square => '50 x 50'
         }.each do |style|
         
@@ -177,7 +261,7 @@ class HasAttachmentTest < Test::Unit::TestCase
       end
       
     end
- 
+     
     context "when multiple instances" do
       setup do
         @document2 = Doc.new

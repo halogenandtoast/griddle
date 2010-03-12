@@ -10,12 +10,20 @@ module Griddle
         @style.geometry =~ /#/
       end
       
+      def file_width
+        file_dimensions.first
+      end
+      
       def fit(geo = geometry)
         `convert #{File.expand_path(@file.path)} -resize #{geo} #{@destination_file.path}`
       end
       
       def geometry
         @geometry ||= @style.geometry.gsub(/#/,'')
+      end
+      
+      def file_height
+        file_dimensions.last
       end
       
       def height
@@ -28,7 +36,7 @@ module Griddle
         @destination_file = Tempfile.new @file.original_filename
         if crop?
           fit(resize_geometry_for_crop)
-          crop unless square_image?
+          crop
         else
           fit
         end
@@ -41,32 +49,24 @@ module Griddle
       
       private
       
-      def file_dimensions
-        @file_dimensions ||= dimensions_for(`identify -format "%[fx:w]x%[fx:h]" #{File.expand_path(@file.path)}`)
-      end
-      
       def dimensions
         @dimensions ||= dimensions_for(geometry)
       end
       
       def dimensions_for geo
-        geo.scan(/([0-9]*)x([0-9]*)/).flatten.collect{|v|v.to_i}
+        geo.scan(/([0-9]*)x([0-9]*)/).flatten.collect{|v|v.to_f}
+      end
+      
+      def file_dimensions
+        @file_dimensions ||= dimensions_for(`identify -format "%[fx:w]x%[fx:h]" #{File.expand_path(@file.path)}`)
+      end
+      
+      def resize_for_width?
+        file_height*(width/file_width) >= height
       end
       
       def resize_geometry_for_crop
-        if width==height
-          file_dimensions.first > file_dimensions.last ? "x#{height}" : "#{width}x"
-        else
-          geometry =~ /#{smaller_dimension}x/ ? "#{smaller_dimension}x" : "x#{smaller_dimension}"
-        end
-      end
-      
-      def smaller_dimension
-        dimensions.sort.first
-      end
-      
-      def square_image?
-        file_dimensions.first == file_dimensions.last
+        resize_for_width? ? "#{width}x" : "x#{height}"
       end
       
     end
