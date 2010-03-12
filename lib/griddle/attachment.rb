@@ -118,6 +118,7 @@ module Griddle
     end
 
     def save
+      destroy
       save_file
       collection.insert(valid_attributes(@attributes).stringify_keys)
     end

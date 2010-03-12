@@ -36,6 +36,22 @@ class HasAttachmentTest < Test::Unit::TestCase
       should "exist" do
         assert @document.image.exists?
       end
+      
+      context "when assigned a new file" do
+      
+        setup do
+          @new_file = File.new("#{@dir}/climenole.jpeg", 'rb')
+          @document.image = @new_file
+          @document.save!
+          @document = Doc.find(@document.id)
+        end
+      
+        should "be the new file" do
+          assert_equal "climenole.jpeg", @document.image.file_name
+          assert_equal @new_file.read, @document.image.file.read
+        end
+      
+      end 
  
     end
     
@@ -196,8 +212,7 @@ class HasAttachmentTest < Test::Unit::TestCase
       end
       
     end
-     
- 
+    
   end
   
   context "A Document with multiple attachments" do
