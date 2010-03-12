@@ -35,3 +35,12 @@ class DocWithInvalidStyles
   }
   
 end
+
+class DocWithMultipleAttachments
+  include MongoMapper::Document
+  include Griddle::HasGridAttachment
+  
+  has_grid_attachment :image
+  has_grid_attachment :pdf
+  
+end

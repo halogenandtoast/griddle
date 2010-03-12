@@ -14,6 +14,7 @@ module Griddle
         attachment_definitions[name] = options
 
         after_save :save_attached_files if respond_to? :after_save
+        after_destroy :destroy_attached_files if respond_to? :after_destroy
         
         define_method(name) do |*args|
           attachment_for(name, options)
@@ -34,6 +35,10 @@ module Griddle
       def attachment_for name, options = {}
         @_gripster_attachments ||= {}
         @_gripster_attachments[name] ||= Attachment.for(name, self, options)
+      end
+      
+      def destroy_attached_files
+        each_attachment{|name, attachment| attachment.destroy }
       end
       
       def each_attachment

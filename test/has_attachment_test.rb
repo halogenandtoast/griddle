@@ -200,6 +200,36 @@ class HasAttachmentTest < Test::Unit::TestCase
  
   end
   
+  context "A Document with multiple attachments" do
+    
+    setup do
+      @document = DocWithMultipleAttachments.new
+      @dir = File.dirname(__FILE__) + '/fixtures'
+      @document.image = File.open("#{@dir}/baboon.jpg", 'r')
+      @document.pdf = File.open("#{@dir}/sample.pdf", 'r')
+      @document.save
+      
+      @grid_keys = [@document.image.grid_key, @document.pdf.grid_key]
+    end
+    
+    should "destroy_attached_files" do
+      @document.destroy_attached_files
+      @grid_keys.each do |grid_key|
+        file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
+        assert file.read.blank?
+      end
+    end
+    
+    should "destroy on after_destroy" do
+      @document.destroy
+      @grid_keys.each do |grid_key|
+        file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
+        assert file.read.blank?
+      end
+    end
+    
+  end
+  
   context "A Document with no object model" do
     
     setup do
