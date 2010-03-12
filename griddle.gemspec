@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{griddle}
-  s.version = "0.0.9"
+  s.version = "0.0.10"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Matt Mongeau"]
-  s.date = %q{2010-03-11}
+  s.date = %q{2010-03-12}
   s.description = %q{GridFS made simple...}
   s.email = %q{matt@toastyapps.com}
   s.extra_rdoc_files = [
@@ -34,8 +34,10 @@ Gem::Specification.new do |s|
      "rails/init.rb",
      "test/attachment_test.rb",
      "test/fixtures/baboon.jpg",
+     "test/fixtures/climenole.jpeg",
      "test/fixtures/fox.jpg",
      "test/fixtures/sample.pdf",
+     "test/fixtures/squid.png",
      "test/has_attachment_test.rb",
      "test/models.rb",
      "test/mongo_mapper_models.rb",

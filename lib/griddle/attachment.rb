@@ -73,6 +73,7 @@ module Griddle
     
     def destroy_file
       GridFS::GridStore.unlink(Griddle.database, grid_key)
+      destroy_styles
     end
     
     def exists?
@@ -168,6 +169,10 @@ module Griddle
       end
     end
     
+    def destroy_styles
+      styles.each{|s| send(s[0]).destroy }
+    end
+    
     def initialize_processor
       @processor = Processor.new @attributes[:processor]
     end
@@ -188,12 +193,16 @@ module Griddle
         GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
           f.write @tmp_file.read
         end
-        styles.each do |h|
-          processed_file = processor.process_image(@tmp_file, h[1])
-          style_attachment = send(h[0])
-          style_attachment.assign(processed_file)
-          style_attachment.save
-        end
+        save_styles
+      end
+    end
+    
+    def save_styles
+      styles.each do |h|
+        processed_file = processor.process_image(@tmp_file, h[1])
+        style_attachment = send(h[0])
+        style_attachment.assign(processed_file)
+        style_attachment.save
       end
     end
     

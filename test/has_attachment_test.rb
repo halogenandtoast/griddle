@@ -71,7 +71,7 @@ class HasAttachmentTest < Test::Unit::TestCase
         @document = DocWithStyles.new
       end
       
-      context "when assigned an image that is wider than taller" do
+      context "when assigned an image" do
         
         setup do
           @document.image = @image
@@ -79,138 +79,15 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
         
         should "have a styles" do
-            assert_kind_of Hash, @document.image.styles
-          end
-          
-          should "have a method for each style" do
-            assert @document.image.respond_to? :cropped_wide
-          end
-          
-          should "be a kind of attachment" do
-            assert_kind_of Griddle::Attachment, @document.image.cropped_wide
-          end
-          
-          should "style should have a grid_key for cropped" do
-            assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/baboon.jpg", @document.image.cropped_wide.grid_key
-          end
-          
-          should "style should have a file for cropped" do
-            assert @document.image.cropped_wide.exists?
-            assert !@document.image.cropped_wide.file.read.blank?
-          end
-        
-        {
-          :resized => "150 x 100",
-          :fitted => "150 x 114",
-          :cropped_wide => '60 x 50',
-          :cropped_tall => '50 x 60',
-          :cropped_square => '50 x 50'
-        }.each do |style|
-        
-          should "have the correct dimensions for #{style[0]}" do
-            temp = Tempfile.new "#{style[0]}.jpg"
-            style_attachment = @document.image.send(style[0])
-            
-            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
-            File.open(file_path, 'w') do |f|
-              f.write style_attachment.file.read
-            end
-            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
-            assert_equal style[1], `#{cmd}`.chomp
-          end
-          
+          assert_kind_of Hash, @document.image.styles
         end
         
-      end     
-      
-      context "when assigned an image that is taller than wider" do
-      
-        setup do
-          @image = File.new("#{@dir}/climenole.jpeg", 'rb')
-          @document.image = @image
-          @document.save
+        should "have a method for each style" do
+          assert @document.image.respond_to? :cropped_wide
         end
         
-        should "style should have a grid_key for cropped" do
-          assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/climenole.jpeg", @document.image.cropped_wide.grid_key
-        end
-        
-        should "style should have a file for cropped_wide" do
-          assert @document.image.cropped_wide.exists?
-          assert !@document.image.cropped_wide.file.read.blank?
-        end
-        
-        {
-          :resized => "150 x 100",
-          :fitted => "94 x 150",
-          :cropped_wide => '60 x 50',
-          :cropped_tall => '50 x 60',
-          :cropped_square => '50 x 50'
-        }.each do |style|
-        
-          should "have the correct dimensions for #{style[0]}" do
-            temp = Tempfile.new "#{style[0]}.jpg"
-            style_attachment = @document.image.send(style[0])
-            
-            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
-            File.open(file_path, 'w') do |f|
-              f.write style_attachment.file.read
-            end
-            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
-            assert_equal style[1], `#{cmd}`.chomp
-          end
-          
-        end
-      
-      end 
-      
-      context "when assigned an image that is square" do
-      
-        setup do
-          @image = File.new("#{@dir}/squid.png", 'rb')
-          @document.image = @image
-          @document.save
-        end
-        
-        should "style should have a grid_key for cropped" do
-          assert_equal "doc_with_styles/#{@document.id}/image/cropped_wide/squid.png", @document.image.cropped_wide.grid_key
-        end
-        
-        should "style should have a file for cropped" do
-          assert @document.image.cropped_wide.exists?
-          assert !@document.image.cropped_wide.file.read.blank?
-        end
-        
-        {
-          :resized => "150 x 100",
-          :fitted => "150 x 150",
-          :cropped_wide => '60 x 50',
-          :cropped_tall => '50 x 60',
-          :cropped_square => '50 x 50'
-        }.each do |style|
-        
-          should "have the correct dimensions for #{style[0]}" do
-            temp = Tempfile.new "#{style[0]}.jpg"
-            style_attachment = @document.image.send(style[0])
-            
-            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
-            File.open(file_path, 'w') do |f|
-              f.write style_attachment.file.read
-            end
-            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
-            assert_equal style[1], `#{cmd}`.chomp
-          end
-          
-        end
-      
-      end 
-    
-      context "when assigned a Rack::Utils::Multipart::UploadedFile" do
-      
-        setup do
-          temp_file = Rack::Utils::Multipart::UploadedFile.new @image.path
-          @document.image = temp_file
-          @document.save
+        should "be a kind of attachment" do
+          assert_kind_of Griddle::Attachment, @document.image.cropped_wide
         end
         
         should "style should have a grid_key for cropped" do
@@ -222,28 +99,86 @@ class HasAttachmentTest < Test::Unit::TestCase
           assert !@document.image.cropped_wide.file.read.blank?
         end
         
-        {
-          :resized => "150 x 100",
-          :fitted => "150 x 114",
-          :cropped_wide => '60 x 50',
-          :cropped_tall => '50 x 60',
-          :cropped_square => '50 x 50'
-        }.each do |style|
-        
-          should "have the correct dimensions for #{style[0]}" do
-            temp = Tempfile.new "#{style[0]}.jpg"
-            style_attachment = @document.image.send(style[0])
-            
-            file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
-            File.open(file_path, 'w') do |f|
-              f.write style_attachment.file.read
-            end
-            cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
-            assert_equal style[1], `#{cmd}`.chomp
+        should "delete an image and its styles" do
+          grid_keys = @document.image.styles.inject([]) do |a,style|
+            a << @document.image.send(style[0]).grid_key
+            a
           end
           
+          grid_keys << @document.image.grid_key
+          
+          @document.image.destroy
+          
+          grid_keys.each do |grid_key|
+            file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
+            assert file.read.blank?
+          end
         end
+        
+      end
       
+      image_varations = {
+        "wider than taller" => {
+          :file_name => "baboon.jpg",
+          :expected_dimensions => {
+            :resized => "150 x 100",
+            :fitted => "150 x 114",
+            :cropped_wide => '60 x 50',
+            :cropped_tall => '50 x 60',
+            :cropped_square => '50 x 50'
+          }
+        },
+        "taller than wider" => {
+          :file_name =>"climenole.jpeg",
+          :expected_dimensions => {
+            :resized => "150 x 100",
+            :fitted => "94 x 150",
+            :cropped_wide => '60 x 50',
+            :cropped_tall => '50 x 60',
+            :cropped_square => '50 x 50'
+          }
+        },
+        "square" => {
+          :file_name => "squid.png",
+          :expected_dimensions => {
+            :resized => "150 x 100",
+            :fitted => "150 x 150",
+            :cropped_wide => '60 x 50',
+            :cropped_tall => '50 x 60',
+            :cropped_square => '50 x 50'
+          }
+        },
+      }
+      
+      image_varations.each do |variant|
+        description, variant = variant
+      
+        context "when assigned an image that is #{description}" do
+        
+          setup do
+            @document.image = File.new("#{@dir}/#{variant[:file_name]}", 'rb')
+            @document.save!
+          end
+        
+          variant[:expected_dimensions].each do |style|
+            style_name, dimensions = style
+        
+            should "have the correct dimensions for #{style_name}" do
+              temp = Tempfile.new "#{style[0]}.jpg"
+              style_attachment = @document.image.send(style_name)
+            
+              file_path = File.dirname(temp.path) + '/' + style_attachment.file_name
+              File.open(file_path, 'w') do |f|
+                f.write style_attachment.file.read
+              end
+              cmd = %Q[identify -format "%[fx:w] x %[fx:h]" #{file_path}]
+              assert_equal dimensions, `#{cmd}`.chomp
+            end
+          
+          end
+        
+        end  
+        
       end
       
     end
@@ -262,16 +197,6 @@ class HasAttachmentTest < Test::Unit::TestCase
       
     end
      
-    context "when multiple instances" do
-      setup do
-        @document2 = Doc.new
-        @image2 = File.open("#{@dir}/fox.jpg", 'r')
-        @document3 = Doc.new
-        @image3 = File.open("#{@dir}/baboon.jpg", 'r')
-        @document2.image = @image2
-        @document3.image = @image3
-      end
-    end
  
   end
   
