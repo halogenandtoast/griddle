@@ -14,6 +14,7 @@ require 'griddle/processor/image_magick'
 require 'griddle/processor'
 
 module Griddle
+  
   def self.version
     @version ||= File.read(File.join(File.dirname(__FILE__), "..", "VERSION")).chomp
   end

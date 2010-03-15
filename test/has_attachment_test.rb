@@ -1,5 +1,6 @@
 require "test_helper"
 require "models"
+include Mongo
  
 class HasAttachmentTest < Test::Unit::TestCase
   context "A Doc that has_grid_attachment :image" do
@@ -48,7 +49,8 @@ class HasAttachmentTest < Test::Unit::TestCase
       
         should "be the new file" do
           assert_equal "climenole.jpeg", @document.image.file_name
-          assert_equal @new_file.read, @document.image.file.read
+          @new_file.rewind
+          assert_equal @new_file.read.length, @document.image.file.read.length
         end
       
       end 
@@ -126,8 +128,7 @@ class HasAttachmentTest < Test::Unit::TestCase
           @document.image.destroy
           
           grid_keys.each do |grid_key|
-            file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
-            assert file.read.blank?
+            assert Griddle.database['fs.files'].find({'filename' => grid_key}).count == 0
           end
         end
         
@@ -230,16 +231,14 @@ class HasAttachmentTest < Test::Unit::TestCase
     should "destroy_attached_files" do
       @document.destroy_attached_files
       @grid_keys.each do |grid_key|
-        file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
-        assert file.read.blank?
+        assert Griddle.database['fs.files'].find({'filename' => grid_key}).count == 0
       end
     end
     
     should "destroy on after_destroy" do
       @document.destroy
       @grid_keys.each do |grid_key|
-        file = GridFS::GridStore.new(Griddle.database, grid_key, 'r')
-        assert file.read.blank?
+        assert Griddle.database['fs.files'].find({'filename' => grid_key}).count == 0
       end
     end
     

@@ -9,7 +9,7 @@ begin
     gem.description = %Q{GridFS made simple...}
     gem.email = "matt@toastyapps.com"
     gem.homepage = "http://github.com/toastyapps/griddle"
-    gem.authors = ["Matt Mongeau"]
+    gem.authors = ["Matt Mongeau","meanmarcus"]
     gem.add_development_dependency "shoulda", ">= 0"
     gem.add_dependency "mongo_mapper", ">= 0"
   end

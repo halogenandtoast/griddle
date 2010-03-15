@@ -1,5 +1,7 @@
 module Griddle
   class Attachment
+    
+    include Mongo
 
     def self.attachment_for(options)
       options.symbolize_keys!
@@ -29,6 +31,7 @@ module Griddle
     attr_accessor :attributes
 
     def initialize(attributes = {})
+      @grid = GridFileSystem.new(Griddle.database)
       @attributes = attributes.symbolize_keys
       initialize_processor
       initialize_styles
@@ -72,20 +75,20 @@ module Griddle
     end
     
     def destroy_file
-      GridFS::GridStore.unlink(Griddle.database, grid_key)
+      @grid.delete(grid_key)
       destroy_styles
     end
     
     def exists?
-      !file_name.nil?
+      Griddle.database['fs.files'].find({'filename' => self.grid_key}).count > 0
     end
     
     def grid_key
-      @grid_key ||= "#{owner_type.tableize}/#{owner_id}/#{name}/#{self.file_name}".downcase
+      "#{owner_type.tableize}/#{owner_id}/#{name}/#{self.file_name}".downcase
     end
     
     def file
-      GridFS::GridStore.new(Griddle.database, grid_key, 'r') unless file_name.blank?
+      @grid.open(grid_key, 'r') if exists?
     end
     
     def file=(new_file)
@@ -191,7 +194,7 @@ module Griddle
     def save_file
       unless @tmp_file.nil?
         @tmp_file.rewind
-        GridFS::GridStore.open(Griddle.database, grid_key, 'w', :content_type => self.content_type) do |f|
+        @grid.open(grid_key, 'w', :content_type => self.content_type) do |f|
           f.write @tmp_file.read
         end
         save_styles

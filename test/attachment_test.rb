@@ -1,6 +1,8 @@
 require "test_helper"
 require "models"
 
+include Mongo
+
 class AttachmentTest < Test::Unit::TestCase
   
   context "An Attachment" do
@@ -19,8 +21,8 @@ class AttachmentTest < Test::Unit::TestCase
     should "#assign a valid assignment" do
       @attachment.assign(@image)
       @attachment.save
-      assert  @attachment.file.is_a? GridFS::GridStore
-      assert GridFS::GridStore.exist?(DocNoAttachment.database, @attachment.grid_key)
+      assert_kind_of Mongo::GridIO, @attachment.file 
+      assert @attachment.exists?
     end
     
     context "with a file" do
@@ -31,7 +33,7 @@ class AttachmentTest < Test::Unit::TestCase
     
       should "#destroy_file" do
         @attachment.destroy_file
-        assert !GridFS::GridStore.exist?(DocNoAttachment.database, @attachment.grid_key)
+        assert !@attachment.exists?
       end
       
     end
