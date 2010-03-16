@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{griddle}
-  s.version = "0.0.11"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Matt Mongeau"]
-  s.date = %q{2010-03-12}
+  s.authors = ["Matt Mongeau", "meanmarcus"]
+  s.date = %q{2010-03-15}
   s.description = %q{GridFS made simple...}
   s.email = %q{matt@toastyapps.com}
   s.extra_rdoc_files = [
