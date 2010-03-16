@@ -54,6 +54,22 @@ class HasAttachmentTest < Test::Unit::TestCase
         end
       
       end 
+      
+      context "when save is called without a new file" do
+      
+        setup do
+          @document = Doc.find(@document.id)
+          @document.save!
+        end
+      
+        should "be the original image" do
+          assert @document.image.exists?
+          assert_equal "baboon.jpg", @document.image.file_name
+          @image.rewind
+          assert_equal @image.read.length, @document.image.file.read.length
+        end
+      
+      end 
  
     end
     

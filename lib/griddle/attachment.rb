@@ -4,8 +4,8 @@ module Griddle
     include Mongo
 
     def self.attachment_for(options)
-      options.symbolize_keys!
-      options_for_search = {:name => options[:name].to_sym, :owner_type => options[:owner_type].to_s, :owner_id => options[:owner_id].to_s}
+      options = self.clean_options(options)
+      options_for_search = {:name => options[:name], :owner_type => options[:owner_type], :owner_id => options[:owner_id]}
       record = collection.find_one(options_for_search)
       return new(record) unless record.nil?
       return new(options)
@@ -18,7 +18,7 @@ module Griddle
     def self.for(name, owner, options = {})
       attachment_for(options.merge({
         :name => name,
-        :owner_type => owner.class.to_s,
+        :owner_type => owner.class,
         :owner_id => owner.id
       }))
     end
@@ -41,6 +41,7 @@ module Griddle
     def assign(uploaded_file)
       if valid_assignment?(uploaded_file)
         self.file = uploaded_file
+        self.dirty!
       end
     end
     
@@ -77,6 +78,11 @@ module Griddle
     def destroy_file
       @grid.delete(grid_key)
       destroy_styles
+    end
+    
+    def dirty?
+      @dirty ||= false
+      @dirty
     end
     
     def exists?
@@ -121,9 +127,11 @@ module Griddle
     end
 
     def save
-      destroy
-      save_file
-      collection.insert(valid_attributes(@attributes).stringify_keys)
+      if valid?
+        destroy
+        save_file
+        collection.insert(valid_attributes(@attributes).stringify_keys)
+      end
     end
     
     def styles
@@ -134,12 +142,31 @@ module Griddle
       @attributes[:styles] = styles
       initialize_styles
     end
+    
+    def valid?
+      dirty? && valid_assignment?(@tmp_file)
+    end
 
     def valid_attributes(attributes)
       Hash[*attributes.select{|key, value| self.class.valid_attributes.include?(key) }.flatten]
     end
     
+    protected
+    
+    def dirty!
+      @dirty = true
+    end
+    
     private
+    
+    def self.clean_options(options)
+      options.symbolize_keys!
+      options.merge({
+        :name => options[:name].to_sym,
+        :owner_type => options[:owner_type].to_s,
+        :owner_id => options[:owner_id].to_s
+      })
+    end
     
     def clean_filename str
       tmp_file_reg = /\.([a-z]{2}[a-z0-9]{0,2})#{Time.now.strftime('%Y%m%d')}-.+/
@@ -192,13 +219,11 @@ module Griddle
     end
     
     def save_file
-      unless @tmp_file.nil?
-        @tmp_file.rewind
-        @grid.open(grid_key, 'w', :content_type => self.content_type) do |f|
-          f.write @tmp_file.read
-        end
-        save_styles
+      @tmp_file.rewind
+      @grid.open(grid_key, 'w', :content_type => self.content_type) do |f|
+        f.write @tmp_file.read
       end
+      save_styles
     end
     
     def save_styles
