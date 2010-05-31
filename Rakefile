@@ -11,7 +11,7 @@ begin
     gem.homepage = "http://github.com/toastyapps/griddle"
     gem.authors = ["Matt Mongeau","meanmarcus"]
     gem.add_development_dependency "shoulda", ">= 0"
-    gem.add_dependency "mongo_mapper", ">= 0"
+    gem.add_development_dependency "mongo_mapper", ">= 0"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

@@ -1,4 +1,3 @@
-require 'mongo/gridfs'
 module Griddle
   module HasGridAttachment
     def self.included(base)
