@@ -6,6 +6,7 @@ end
 require 'rubygems'
 require 'mime/types'
 require 'tempfile'
+require 'mongo'
 require 'griddle/has_grid_attachment'
 require 'griddle/attachment'
 require 'griddle/upfile'
